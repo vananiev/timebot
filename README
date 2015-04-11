@@ -1,7 +1,9 @@
 To build new version:
 - make canches in src/main/java/
 - cange version on pom.xml
-- run ./buils.sh
+- run ./build.sh
+
+rpm releases are availaible in rpmbuild/RPMS/ (version 0.1 is already released).
 
 Script run-java-based.sh can used to test newly builed web service.
 Script run-groovy-based is used to test code in src/main/groovy/, but
