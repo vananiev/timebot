@@ -1,0 +1,90 @@
+#! /bin/bash
+#
+# chkconfig: 35 99 1
+### BEGIN INIT INFO
+# Provides:.
+# Required-Start: $local_fs $syslog
+# Required-Stop: $local_fs $syslog
+# Default-Start:  35
+# Default-Stop: 01246
+# Short-Description:
+# Description: Web Time Bot
+### END INIT INFO
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+# Source function library.
+. /etc/init.d/functions
+
+USER="timebot"
+
+APPNAME="timebot"
+APPDESCR="Time Bot"
+
+DAEMON="/usr/bin/java"
+DAEMON_ARGS="-jar /usr/lib/timebot/timebot.jar"
+LOCKFILE="/var/lock/subsys/$APPNAME"
+PIDFILE="/var/run/${APPNAME}.pid"
+LOGFILE="/var/log/${APPNAME}.log"
+ADMINS_MAIL="root"
+
+watcher(){
+    while [ -d /proc/$1 ]; do sleep 10; done;
+    echo "$APPDESCR on $(hostname) has been restarted." | mail -s "$APPDESCR problem" $ADMINS_MAIL &>/dev/null
+    ./$0 restart &>/dev/null;
+}
+
+
+function do_start  {
+	do_status &>/dev/null && { echo "$APPDESCR already running..."; return; }
+	tmp_pid="/tmp/$APPNAME.pid"
+	echo -n $"Starting $APPDESCR: "
+	daemon --pidfile=$PIDFILE --user=$USER \
+	    " { $DAEMON $DAEMON_ARGS &>$LOGFILE </dev/null & }; echo \$! > $tmp_pid; "
+	pid="$(cat $tmp_pid)" && rm -f $tmp_pid
+	watcher "$pid" &>/dev/null &
+    watcher_pid="$!"
+    [ -n $PID ] && touch $LOCKFILE &&  echo "$pid $watcher_pid" > $PIDFILE && success || failure
+    echo
+}
+
+function do_stop   {
+    echo -n $"Stopping $APPDESCR: "
+    killproc -p $PIDFILE && rm -f $LOCKFILE
+    echo
+}
+
+# @return 0 is started
+function do_status {
+    status -p $PIDFILE -l $LOCKFILE "$APPDESCR"
+    return $?
+}
+
+function main {
+case "$1" in
+
+  start)
+        do_start
+        ;;
+  stop)
+        do_stop
+        ;;
+  status)
+        do_status
+        ;;
+
+  restart)
+        do_stop
+        do_start
+        ;;
+  condrestart)
+		do_status &>/dev/null && { do_stop && do_start; }
+		;;
+  *)
+        echo "Usage: $0 { start | stop | status | restart }" >&2
+        exit 1
+        ;;
+esac
+}
+main $1

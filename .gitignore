@@ -1,2 +1,4 @@
 target/*
 !target/timebot-*.jar
+rpmbuild/BUILD
+rpmbuild/SOURCES/timebot.tar.gz

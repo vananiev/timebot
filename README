@@ -1,0 +1,8 @@
+To build new version:
+- make canches in src/main/java/
+- cange version on pom.xml
+- run ./buils.sh
+
+Script run-java-based.sh can used to test newly builed web service.
+Script run-groovy-based is used to test code in src/main/groovy/, but
+this code don't builded into rpm.
