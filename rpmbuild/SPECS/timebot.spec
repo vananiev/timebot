@@ -20,6 +20,8 @@ rm -rf %{buildroot}
 mkdir %{buildroot}
 cp -R * %{buildroot}
 
+%check
+../../test.sh $(pwd)/usr/lib/timebot/timebot.jar
 
 %clean
 rm -rf %{buildroot}
